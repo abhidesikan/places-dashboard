@@ -1,0 +1,40 @@
+{
+  "name": "places-dashboard",
+  "version": "1.0.0",
+  "description": "Automated sync of saved places from multiple sources to Notion dashboard",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "sync": "node src/sync/syncAll.js",
+    "sync:google": "node src/sync/syncGoogleMaps.js",
+    "sync:instapaper": "node src/sync/syncInstapaper.js",
+    "sync:twitter": "node src/sync/syncTwitter.js",
+    "sync:icloud": "node src/sync/syncIcloud.js",
+    "add": "node src/scripts/addPlace.js",
+    "visit": "node src/scripts/updateVisit.js",
+    "list": "node src/scripts/viewPlaces.js",
+    "test": "node src/test/test-notion.js"
+  },
+  "keywords": [
+    "notion",
+    "automation",
+    "travel",
+    "places",
+    "sync"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "dotenv": "^16.4.5",
+    "axios": "^1.6.7",
+    "googleapis": "^133.0.0",
+    "cheerio": "^1.0.0-rc.12",
+    "csv-parse": "^5.5.3",
+    "date-fns": "^3.3.1",
+    "inquirer": "^9.2.14"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  }
+}
