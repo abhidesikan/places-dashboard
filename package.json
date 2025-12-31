@@ -9,6 +9,7 @@
     "sync:google": "node src/sync/syncGoogleMaps.js",
     "sync:instapaper": "node src/sync/syncInstapaper.js",
     "sync:twitter": "node src/sync/syncTwitter.js",
+    "sync:twitter-dm": "node src/sync/syncTwitterDM.js",
     "sync:icloud": "node src/sync/syncIcloud.js",
     "add": "node src/scripts/addPlace.js",
     "visit": "node src/scripts/updateVisit.js",
