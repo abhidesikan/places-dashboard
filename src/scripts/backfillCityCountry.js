@@ -7,10 +7,13 @@ async function backfillCityCountry() {
   const allPlaces = await getAllPlaces();
   const placesWithAddress = allPlaces.filter(page => {
     const props = extractProperties(page);
-    return props.place?.address && (!props.city || !props.country);
+    // Include places with addresses that either:
+    // 1. Don't have city/country
+    // 2. Have city/country but might need updating (we'll check inside the loop)
+    return props.place?.address;
   });
 
-  console.log(`Found ${placesWithAddress.length} place(s) with addresses but missing city/country\n`);
+  console.log(`Found ${placesWithAddress.length} place(s) with addresses\n`);
 
   if (placesWithAddress.length === 0) {
     console.log('✅ All places already have city & country!');
@@ -31,19 +34,31 @@ async function backfillCityCountry() {
 
     const updates = {};
 
-    if (city && !props.city) {
+    // Update city if missing OR if it's different from current value
+    if (city && city !== props.city) {
       updates.city = city;
-      console.log(`   ✅ City: ${city}`);
+      if (props.city) {
+        console.log(`   🔄 City: ${props.city} → ${city}`);
+      } else {
+        console.log(`   ✅ City: ${city}`);
+      }
     }
 
-    if (country && !props.country) {
+    // Update country if missing OR if it's different from current value
+    if (country && country !== props.country) {
       updates.country = country;
-      console.log(`   ✅ Country: ${country}`);
+      if (props.country) {
+        console.log(`   🔄 Country: ${props.country} → ${country}`);
+      } else {
+        console.log(`   ✅ Country: ${country}`);
+      }
     }
 
     if (Object.keys(updates).length > 0) {
       await updatePlace(page.id, updates);
       updated++;
+    } else {
+      console.log(`   ℹ️  Already correct`);
     }
 
     console.log();
