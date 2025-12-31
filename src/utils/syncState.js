@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 import config from '../config/index.js';
 
@@ -48,6 +49,20 @@ export async function updateSyncState(source, updates) {
 
   await saveSyncState(state);
   return state;
+}
+
+/**
+ * Get sync state for a specific source
+ */
+export function getSyncState(source) {
+  // Synchronous version - returns default if not exists
+  try {
+    const data = fsSync.readFileSync(config.syncStatePath, 'utf-8');
+    const state = JSON.parse(data);
+    return state[source] || { lastSync: null };
+  } catch (error) {
+    return { lastSync: null };
+  }
 }
 
 /**

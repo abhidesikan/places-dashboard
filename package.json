@@ -14,6 +14,7 @@
     "add": "node src/scripts/addPlace.js",
     "visit": "node src/scripts/updateVisit.js",
     "list": "node src/scripts/viewPlaces.js",
+    "import:text": "node src/scripts/importText.js",
     "backfill": "node src/scripts/backfillCoordinates.js",
     "backfill:city": "node src/scripts/backfillCityCountry.js",
     "classify": "node src/scripts/classifyTemples.js",
