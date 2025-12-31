@@ -13,11 +13,6 @@ async function addPlace() {
       validate: (input) => input.trim() !== '' || 'Name is required',
     },
     {
-      type: 'input',
-      name: 'url',
-      message: 'Google Maps URL (optional, press enter to skip):',
-    },
-    {
       type: 'list',
       name: 'source',
       message: 'Source:',
@@ -48,46 +43,24 @@ async function addPlace() {
   let placeInfo = null;
   let suggestedCategory = null;
 
-  // Step 1: If URL provided, parse it to get coordinates
-  if (answers.url && answers.url.trim()) {
-    const url = answers.url.trim();
-    console.log('\n🔍 Parsing Google Maps URL...');
+  // Automatically search for the place on Google Maps
+  console.log('\n🌍 Looking up place on Google Maps...');
 
-    placeInfo = await parseGoogleMapsUrl(url);
+  placeInfo = await searchPlace(placeData.name);
 
-    if (placeInfo) {
-      console.log(`✅ Found: ${placeInfo.name || 'Location'}`);
-      if (placeInfo.lat && placeInfo.lon) {
-        console.log(`   Coordinates: ${placeInfo.lat}, ${placeInfo.lon}`);
-      }
-      placeData.url = url;
-    } else {
-      console.log('⚠️  Could not parse URL, storing as-is');
-      placeData.url = url;
-    }
-  }
+  if (placeInfo) {
+    console.log(`✅ Found: ${placeInfo.name}`);
+    console.log(`   Address: ${placeInfo.address}`);
+    console.log(`   Coordinates: ${placeInfo.lat}, ${placeInfo.lon}`);
 
-  // Step 2: If no coordinates yet, search Google Places API
-  if (!placeInfo || !placeInfo.lat) {
-    console.log('\n🌍 Looking up place on Google Maps...');
+    // Suggest category based on Google place types
+    suggestedCategory = getCategoryFromTypes(placeInfo.types);
 
-    placeInfo = await searchPlace(placeData.name);
-
-    if (placeInfo) {
-      console.log(`✅ Found: ${placeInfo.name}`);
-      console.log(`   Address: ${placeInfo.address}`);
-      console.log(`   Coordinates: ${placeInfo.lat}, ${placeInfo.lon}`);
-
-      // Suggest category based on Google place types
-      suggestedCategory = getCategoryFromTypes(placeInfo.types);
-
-      if (!placeData.url) {
-        placeData.url = placeInfo.url;
-        console.log(`   URL: ${placeInfo.url}`);
-      }
-    } else {
-      console.log('ℹ️  Could not find place on Google Maps (no API key or not found)');
-    }
+    // Store the Google Maps URL
+    placeData.url = placeInfo.url;
+    console.log(`   URL: ${placeInfo.url}`);
+  } else {
+    console.log('ℹ️  Could not find place on Google Maps (add API key to .env for auto-lookup)');
   }
 
   // Step 3: Ask for category (with suggestion if available)

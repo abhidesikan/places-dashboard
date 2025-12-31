@@ -48,7 +48,24 @@ Your Notion database should have these properties:
    - Copy the 32-character ID between the last `/` and `?`
 4. Paste it as `NOTION_DATABASE_ID` in `.env`
 
-### 5. Test Your Connection
+### 5. Get Google Maps API Key (Optional but Recommended)
+
+This enables automatic place lookup - just enter a name and it finds coordinates, address, and URL automatically.
+
+1. Go to https://console.cloud.google.com/
+2. Create a new project (or select existing)
+3. Enable these APIs:
+   - **Places API (New)**
+   - **Geocoding API** (optional)
+4. Go to "Credentials" → "Create Credentials" → "API Key"
+5. Copy the API key
+6. Add to `.env`:
+   ```
+   GOOGLE_MAPS_API_KEY=your_api_key_here
+   ```
+7. (Recommended) Restrict the API key to only Places API
+
+### 6. Test Your Connection
 ```bash
 npm test
 ```
@@ -62,10 +79,10 @@ You should see:
 
 ## Next Steps
 
-Once the foundation is working, you can:
-1. Add other integration credentials (Google Maps, Instapaper, etc.)
-2. Run sync scripts to import places from external sources
-3. Use CLI tools to manually add places and log visits
+Once the foundation is working:
+1. Add places using `npm run add` - it will auto-lookup on Google Maps!
+2. View places using `npm run list`
+3. (Later) Set up Twitter/Notes sync for automation
 
 ## Troubleshooting
 
