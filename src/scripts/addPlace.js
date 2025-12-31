@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 import { addOrUpdatePlace } from '../services/places.js';
 import { parseGoogleMapsUrl, searchPlace, getCategoryFromTypes } from '../integrations/googleMaps.js';
+import { enhanceTempleMetadata } from '../utils/templeClassifier.js';
 
 async function addPlace() {
   console.log('📍 Add a New Place\n');
@@ -102,6 +103,18 @@ async function addPlace() {
 
   if (answers.notes && answers.notes.trim()) {
     placeData.notes = answers.notes.trim();
+  }
+
+  // Enhance with temple classification if it's a temple
+  if (placeData.category === 'Temple') {
+    const enhanced = enhanceTempleMetadata(placeData);
+    if (enhanced.templeTypes && enhanced.templeTypes.length > 0) {
+      console.log(`\n🏛️  Detected temple types: ${enhanced.templeTypes.join(', ')}`);
+      placeData.templeTypes = enhanced.templeTypes;
+    }
+    if (enhanced.deity) {
+      console.log(`   Deity: ${enhanced.deity}`);
+    }
   }
 
   console.log('\n🔍 Checking for duplicates...');

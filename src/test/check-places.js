@@ -26,6 +26,10 @@ async function checkPlaces() {
       console.log(`   Sources: ${props.sources.join(', ')}`);
     }
 
+    if (props.templeTypes && props.templeTypes.length > 0) {
+      console.log(`   🏛️  Temple Types: ${props.templeTypes.join(', ')}`);
+    }
+
     console.log();
   });
 }
