@@ -71,35 +71,40 @@ export async function searchPlace(query) {
   }
 
   try {
-    // Use Places API Text Search
-    const response = await axios.get(
-      'https://maps.googleapis.com/maps/api/place/textsearch/json',
+    // Use NEW Places API (Text Search)
+    const response = await axios.post(
+      'https://places.googleapis.com/v1/places:searchText',
       {
-        params: {
-          query,
-          key: config.googleMaps.apiKey,
+        textQuery: query,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': config.googleMaps.apiKey,
+          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.location,places.id,places.types,places.googleMapsUri',
         },
       }
     );
 
-    if (response.data.status === 'OK' && response.data.results.length > 0) {
-      const place = response.data.results[0];
+    if (response.data.places && response.data.places.length > 0) {
+      const place = response.data.places[0];
 
       return {
-        name: place.name,
-        lat: place.geometry.location.lat,
-        lon: place.geometry.location.lng,
-        address: place.formatted_address,
-        placeId: place.place_id,
-        types: place.types,
-        url: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+        name: place.displayName?.text || query,
+        lat: place.location?.latitude,
+        lon: place.location?.longitude,
+        address: place.formattedAddress || '',
+        placeId: place.id,
+        types: place.types || [],
+        url: place.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
       };
     }
 
     return null;
   } catch (error) {
-    if (error.response?.data?.error_message) {
-      console.error('Google Places API error:', error.response.data.error_message);
+    if (error.response?.data?.error) {
+      console.error('Google Places API error:', error.response.data.error.message);
+      console.error('Status:', error.response.data.error.status);
     } else {
       console.error('Error searching place:', error.message);
     }
