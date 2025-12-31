@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config, { validateConfig } from '../config/index.js';
+import { extractCity, extractCountry } from '../utils/addressParser.js';
 
 /**
  * Parse Google Maps URL to extract place information
@@ -88,14 +89,18 @@ export async function searchPlace(query) {
 
     if (response.data.places && response.data.places.length > 0) {
       const place = response.data.places[0];
+      const address = place.formattedAddress || '';
 
       return {
         name: place.displayName?.text || query,
         lat: place.location?.latitude,
         lon: place.location?.longitude,
-        address: place.formattedAddress || '',
+        address,
+        city: extractCity(address),
+        country: extractCountry(address),
         placeId: place.id,
         types: place.types || [],
+        category: getCategoryFromTypes(place.types),
         url: place.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
       };
     }

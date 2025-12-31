@@ -53,9 +53,18 @@ Add these properties to your Places database if not already present:
 3. Save consumer key and secret
 
 #### Twitter API
+**Important**: The Twitter Bookmarks API requires **OAuth 2.0** with specific scopes. Here's how to set it up:
+
 1. Apply for developer account at [Twitter Developer Portal](https://developer.twitter.com/)
-2. Create a new app
-3. Generate API keys and tokens (need elevated access for bookmarks)
+2. Create a new app (or use existing)
+3. In your app settings:
+   - Under "User authentication settings", enable OAuth 2.0
+   - Set Type: "Web App, Automated App or Bot"
+   - Add scopes: `tweet.read`, `bookmark.read`, `users.read`
+   - Set Callback URL to `http://localhost:3000/callback` (for local testing)
+4. Generate Bearer Token (you'll need this for `TWITTER_BEARER_TOKEN`)
+
+**Note**: Twitter's free tier has limitations. The bookmarks endpoint may require elevated access or Pro/Enterprise plan. If you don't have access, the sync will show an error.
 
 ### 5. Install Dependencies
 
