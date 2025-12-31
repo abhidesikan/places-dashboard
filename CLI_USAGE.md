@@ -9,17 +9,25 @@ npm run add
 
 Interactive prompts to add a new place:
 - Name (required)
-- Category (Restaurant, Cafe, Temple, Museum, etc.)
-- URL (optional)
-- Address (optional)
+- Google Maps URL (optional)
 - Source (Manual, Twitter, Notes, Google Maps, Instapaper)
 - Status (Want to go, Visited, Maybe)
 - Notes (optional)
+- Category (auto-suggested based on Google data)
 
-**Features:**
-- Automatically checks for duplicates
-- Merges with existing places if found
-- Shows similarity score and reasons
+**Smart Features:**
+- 🗺️ **Paste Google Maps URL** → Automatically extracts:
+  - GPS coordinates for Notion's map view
+  - Full address
+  - Place name
+  - Category suggestion (Restaurant, Temple, etc.)
+- 🔍 **Just enter name** → Looks up on Google Maps (if API key configured)
+- ✅ **Deduplication** → Checks for duplicates and merges sources
+- 📍 **Map integration** → Populates Notion's Place column with coordinates
+
+**Works without API key:**
+- URL parsing works for any Google Maps link
+- API key only needed for name-only searches
 
 ### 2. View/List Places
 ```bash

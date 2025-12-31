@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import { addOrUpdatePlace } from '../services/places.js';
+import { parseGoogleMapsUrl, searchPlace, getCategoryFromTypes } from '../integrations/googleMaps.js';
 
 async function addPlace() {
   console.log('📍 Add a New Place\n');
@@ -12,30 +13,9 @@ async function addPlace() {
       validate: (input) => input.trim() !== '' || 'Name is required',
     },
     {
-      type: 'list',
-      name: 'category',
-      message: 'Category:',
-      choices: [
-        'Restaurant',
-        'Cafe',
-        'Bar',
-        'Temple',
-        'Museum',
-        'Park',
-        'Hotel',
-        'Shop',
-        'Other',
-      ],
-    },
-    {
       type: 'input',
       name: 'url',
-      message: 'URL (optional, press enter to skip):',
-    },
-    {
-      type: 'input',
-      name: 'address',
-      message: 'Address (optional, press enter to skip):',
+      message: 'Google Maps URL (optional, press enter to skip):',
     },
     {
       type: 'list',
@@ -61,20 +41,89 @@ async function addPlace() {
   // Build place data
   const placeData = {
     name: answers.name.trim(),
-    category: answers.category,
     sources: [answers.source],
     status: answers.status,
   };
 
+  let placeInfo = null;
+  let suggestedCategory = null;
+
+  // Step 1: If URL provided, parse it to get coordinates
   if (answers.url && answers.url.trim()) {
-    placeData.url = answers.url.trim();
+    const url = answers.url.trim();
+    console.log('\n🔍 Parsing Google Maps URL...');
+
+    placeInfo = await parseGoogleMapsUrl(url);
+
+    if (placeInfo) {
+      console.log(`✅ Found: ${placeInfo.name || 'Location'}`);
+      if (placeInfo.lat && placeInfo.lon) {
+        console.log(`   Coordinates: ${placeInfo.lat}, ${placeInfo.lon}`);
+      }
+      placeData.url = url;
+    } else {
+      console.log('⚠️  Could not parse URL, storing as-is');
+      placeData.url = url;
+    }
   }
 
-  if (answers.address && answers.address.trim()) {
-    // For now, just store address without coordinates
-    // Later we can add geocoding to get lat/lon
+  // Step 2: If no coordinates yet, search Google Places API
+  if (!placeInfo || !placeInfo.lat) {
+    console.log('\n🌍 Looking up place on Google Maps...');
+
+    placeInfo = await searchPlace(placeData.name);
+
+    if (placeInfo) {
+      console.log(`✅ Found: ${placeInfo.name}`);
+      console.log(`   Address: ${placeInfo.address}`);
+      console.log(`   Coordinates: ${placeInfo.lat}, ${placeInfo.lon}`);
+
+      // Suggest category based on Google place types
+      suggestedCategory = getCategoryFromTypes(placeInfo.types);
+
+      if (!placeData.url) {
+        placeData.url = placeInfo.url;
+        console.log(`   URL: ${placeInfo.url}`);
+      }
+    } else {
+      console.log('ℹ️  Could not find place on Google Maps (no API key or not found)');
+    }
+  }
+
+  // Step 3: Ask for category (with suggestion if available)
+  const categoryChoices = [
+    'Restaurant',
+    'Cafe',
+    'Bar',
+    'Temple',
+    'Museum',
+    'Park',
+    'Hotel',
+    'Shop',
+    'Other',
+  ];
+
+  const categoryAnswer = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'category',
+      message: suggestedCategory
+        ? `Category (suggested: ${suggestedCategory}):`
+        : 'Category:',
+      choices: categoryChoices,
+      default: suggestedCategory || 'Other',
+    },
+  ]);
+
+  placeData.category = categoryAnswer.category;
+
+  // Step 4: Add place info if we got it
+  if (placeInfo && placeInfo.lat && placeInfo.lon) {
     placeData.place = {
-      address: answers.address.trim(),
+      lat: placeInfo.lat,
+      lon: placeInfo.lon,
+      name: placeInfo.name || placeData.name,
+      address: placeInfo.address || '',
     };
   }
 
