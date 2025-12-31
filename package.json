@@ -13,6 +13,7 @@
     "add": "node src/scripts/addPlace.js",
     "visit": "node src/scripts/updateVisit.js",
     "list": "node src/scripts/viewPlaces.js",
+    "backfill": "node src/scripts/backfillCoordinates.js",
     "test": "node src/test/test-notion.js"
   },
   "keywords": [
