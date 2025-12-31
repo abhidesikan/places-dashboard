@@ -75,6 +75,8 @@ export async function createPlace({
   url = null,
   sources = [],
   templeTypes = [],
+  city = null,
+  country = null,
   status = 'Want to go',
   notes = null,
 }) {
@@ -113,6 +115,14 @@ export async function createPlace({
 
   if (templeTypes && templeTypes.length > 0) {
     properties['Temple Type'] = { multi_select: templeTypes.map(t => ({ name: t })) };
+  }
+
+  if (city) {
+    properties.City = { rich_text: [{ text: { content: city } }] };
+  }
+
+  if (country) {
+    properties.Country = { rich_text: [{ text: { content: country } }] };
   }
 
   const page = {
@@ -171,6 +181,14 @@ export async function updatePlace(pageId, updates) {
 
   if (updates.templeTypes) {
     properties['Temple Type'] = { multi_select: updates.templeTypes.map(t => ({ name: t })) };
+  }
+
+  if (updates.city) {
+    properties.City = { rich_text: [{ text: { content: updates.city } }] };
+  }
+
+  if (updates.country) {
+    properties.Country = { rich_text: [{ text: { content: updates.country } }] };
   }
 
   const response = await notion.pages.update({
@@ -258,6 +276,8 @@ export function extractProperties(page) {
     url: props.URL?.url || null,
     sources: props.Source?.multi_select?.map(s => s.name) || [],
     templeTypes: props['Temple Type']?.multi_select?.map(t => t.name) || [],
+    city: props.City?.rich_text?.[0]?.plain_text || null,
+    country: props.Country?.rich_text?.[0]?.plain_text || null,
     status: props.Status?.select?.name || null,
   };
 }

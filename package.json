@@ -14,6 +14,7 @@
     "visit": "node src/scripts/updateVisit.js",
     "list": "node src/scripts/viewPlaces.js",
     "backfill": "node src/scripts/backfillCoordinates.js",
+    "backfill:city": "node src/scripts/backfillCityCountry.js",
     "classify": "node src/scripts/classifyTemples.js",
     "test": "node src/test/test-notion.js"
   },

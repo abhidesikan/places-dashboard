@@ -2,6 +2,7 @@ import inquirer from 'inquirer';
 import { addOrUpdatePlace } from '../services/places.js';
 import { parseGoogleMapsUrl, searchPlace, getCategoryFromTypes } from '../integrations/googleMaps.js';
 import { enhanceTempleMetadata } from '../utils/templeClassifier.js';
+import { extractCity, extractCountry } from '../utils/addressParser.js';
 
 async function addPlace() {
   console.log('📍 Add a New Place\n');
@@ -99,6 +100,21 @@ async function addPlace() {
       name: placeInfo.name || placeData.name,
       address: placeInfo.address || '',
     };
+
+    // Extract city and country from address
+    if (placeInfo.address) {
+      const city = extractCity(placeInfo.address);
+      const country = extractCountry(placeInfo.address);
+
+      if (city) {
+        placeData.city = city;
+        console.log(`   City: ${city}`);
+      }
+      if (country) {
+        placeData.country = country;
+        console.log(`   Country: ${country}`);
+      }
+    }
   }
 
   if (answers.notes && answers.notes.trim()) {
